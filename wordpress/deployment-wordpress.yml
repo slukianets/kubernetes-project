@@ -1,0 +1,32 @@
+---
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: wordpress-deployment
+  labels:
+    app: wordpress
+    server: web
+
+spec:
+  selector:
+    matchLables:
+      name: wordpress
+
+  replicas: 3
+
+  template:
+    metadata:
+      name: wordpress-pod
+      labels:
+        name: wordpress
+        server: web
+    spec:
+      containers:
+        - name: wordpress
+          image: serogka/my-wordpress-test:last
+          ports:
+           - containerPort: 80
+

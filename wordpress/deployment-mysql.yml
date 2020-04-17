@@ -1,0 +1,32 @@
+---
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: mysql-deployment
+  labels:
+    app: wordpress
+    server: database
+
+spec:
+  selector:
+    matchLables:
+      name: wordpress
+
+  replicas: 1
+
+  template:
+    metadata:
+      name: mysql-pod
+      labels:
+        name: wordpress
+        server: database
+    spec:
+      containers:
+        - name: mysql
+          image: serogka/my-mysql-wordpress-test:last
+          ports:
+           - containerPort: 80
+
