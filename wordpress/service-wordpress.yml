@@ -13,7 +13,7 @@ metadata:
 spec:
   ports:
     - port: 80
-  selctor:
+  selector:
     app: wordpress
     server: web
   type: LoadBalancer

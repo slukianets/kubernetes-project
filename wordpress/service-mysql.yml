@@ -13,7 +13,7 @@ metadata:
 spec:
   ports:
     - port: 3306
-  selctor:
+  selector:
     app: wordpress
     server: database
 

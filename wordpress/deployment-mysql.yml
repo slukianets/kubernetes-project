@@ -12,8 +12,8 @@ metadata:
 
 spec:
   selector:
-    matchLables:
-      name: wordpress
+    matchLabels:
+      app: wordpress
 
   replicas: 1
 
@@ -21,7 +21,7 @@ spec:
     metadata:
       name: mysql-pod
       labels:
-        name: wordpress
+        app: wordpress
         server: database
     spec:
       containers:
