@@ -28,5 +28,5 @@ spec:
         - name: mysql
           image: serogka/my-mysql-wordpress-test:last
           ports:
-           - containerPort: 80
+           - containerPort: 3306
 
