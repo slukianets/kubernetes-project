@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Install Docker CE
+apt-get update && apt-get install -y \
+  apt-transport-https ca-certificates curl software-properties-common gnupg2
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) \
+  stable"
+apt-get update && apt-get install -y \
+  containerd.io=1.2.13-1 \
+  docker-ce=5:19.03.8~3-0~ubuntu-$(lsb_release -cs) \
+  docker-ce-cli=5:19.03.8~3-0~ubuntu-$(lsb_release -cs)
+
+
+usermod -aG docker $USER
+
+## Install kubeadm
+apt-get update && sudo apt-get install -y apt-transport-https curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+apt-get update
+apt-get install -y kubelet kubeadm kubectl
+apt-mark hold kubelet kubeadm kubectl
+
+
+
+
+sudo kubeadm init --apiserver-advertise-address=172.31.46.201 --pod-network-cidr=10.244.0.0/16
+
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+kubeadm join 172.31.46.201:6443 --token gsgwhw.3mwwhvjbwmr51dok \
+    --discovery-token-ca-cert-hash sha256:a2870ab782e0b6fdf9eaaa638e81b870bc7ac4eb4932ab3bbf85d0dd2cbb599a 
+
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml
