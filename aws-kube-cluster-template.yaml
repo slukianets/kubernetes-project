@@ -41,6 +41,33 @@ Parameters:
     Type: String
     Default: 10.0.31.0/24
 
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Default: kube-test.pem
+
+  SSHIPaddress:
+     Description: The IP address range that can be used to SSH to the EC2 instances. Must be a valid IP CIDR range of the form x.x.x.x/x.
+     Type: String
+     MinLength: 9
+     MaxLength: 18
+     Default: 0.0.0.0/0
+     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.medium
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+    Description: Enter t2.medium, t2.large, or t2.xlarge. Default is t2.medium.
+
+  ImageIDType:
+    Description: Default Europe (Frankfurt) eu-central-1 region. Ubuntu ImageID
+    Type: String
+    Default: ami-0d359437d1756caa8
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -282,8 +309,25 @@ Resources:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        CidrIp: 10.0.0.0/16
+        CidrIp: !Ref SSHIPaddress
         Description: ssh
+
+  myEC2Instance:
+    Type: AWS::EC2::Instance
+    DependsOn: KubeClusterSecurityGroup
+    Properties:
+        ImageId: !Ref ImageIDType
+        KeyName: !Ref KeyName
+        InstanceType: !Ref InstanceTypeParameter
+        SecurityGroupIds: [ !GetAtt KubeClusterSecurityGroup.GroupId ]
+        SubnetId: !Ref PublicSubnet1
+        BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 15
+        Tags:
+          - Key: Name
+            Value: !Ref EnvironmentName
 
 Outputs:
   VPC:
@@ -325,3 +369,6 @@ Outputs:
   KubeClusterSecurityGroup:
     Description: Security group with Kubernetes port + ssh
     Value: !Ref KubeClusterSecurityGroup
+  myEC2Instance:
+    Description: A reference to the EC2 public IP address
+    Value: !GetAtt myEC2Instance.PublicIp
