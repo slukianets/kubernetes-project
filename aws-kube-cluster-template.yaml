@@ -130,7 +130,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 1, !GetAZs  '' ]
-      CidrBlock: !Ref DBSubnet2IPrange
+      CidrBlock: !Ref PrivateSubnet2IPrange
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
@@ -152,7 +152,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 1, !GetAZs  '' ]
-      CidrBlock: !Ref PrivateSubnet2IPrange
+      CidrBlock: !Ref DBSubnet2IPrange
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
@@ -311,8 +311,11 @@ Resources:
         ToPort: 22
         CidrIp: !Ref SSHIPaddress
         Description: ssh
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
 
-  myEC2Instance:
+  MasterEC2Instance:
     Type: AWS::EC2::Instance
     DependsOn: KubeClusterSecurityGroup
     Properties:
@@ -327,7 +330,42 @@ Resources:
             VolumeSize: 15
         Tags:
           - Key: Name
-            Value: !Ref EnvironmentName
+            Value: !Sub ${EnvironmentName}-master
+
+  Worker1EC2Instance:
+    Type: AWS::EC2::Instance
+    DependsOn: KubeClusterSecurityGroup
+    Properties:
+        ImageId: !Ref ImageIDType
+        KeyName: !Ref KeyName
+        InstanceType: !Ref InstanceTypeParameter
+        SecurityGroupIds: [ !GetAtt KubeClusterSecurityGroup.GroupId ]
+        SubnetId: !Ref PublicSubnet1
+        BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 15
+        Tags:
+          - Key: Name
+            Value: !Sub ${EnvironmentName}-worker1
+
+  Worker2EC2Instance:
+    Type: AWS::EC2::Instance
+    DependsOn: KubeClusterSecurityGroup
+    Properties:
+        ImageId: !Ref ImageIDType
+        KeyName: !Ref KeyName
+        InstanceType: !Ref InstanceTypeParameter
+        SecurityGroupIds: [ !GetAtt KubeClusterSecurityGroup.GroupId ]
+        SubnetId: !Ref PublicSubnet2
+        BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 15
+        Tags:
+          - Key: Name
+            Value: !Sub ${EnvironmentName}-worker2
+
 
 Outputs:
   VPC:
@@ -369,6 +407,15 @@ Outputs:
   KubeClusterSecurityGroup:
     Description: Security group with Kubernetes port + ssh
     Value: !Ref KubeClusterSecurityGroup
-  myEC2Instance:
-    Description: A reference to the EC2 public IP address
-    Value: !GetAtt myEC2Instance.PublicIp
+
+  MasterEC2Instance:
+    Description: A reference to the EC2 Master public IP address
+    Value: !GetAtt MasterEC2Instance.PublicIp
+
+  Worker1EC2Instance:
+    Description: A reference to the EC2 Worker1 public IP address
+    Value: !GetAtt Worker1EC2Instance.PublicIp
+
+  Worker2EC2Instance:
+    Description: A reference to the EC2 Worker2 public IP address
+    Value: !GetAtt Worker2EC2Instance.PublicIp
