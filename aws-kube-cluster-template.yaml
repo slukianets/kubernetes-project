@@ -311,6 +311,26 @@ Resources:
         ToPort: 22
         CidrIp: !Ref SSHIPaddress
         Description: ssh
+      - IpProtocol: tcp
+        FromPort: 6783
+        ToPort: 6783
+        CidrIp: 10.0.0.0/16
+        Description: Weave Net
+      - IpProtocol: udp
+        FromPort: 6783
+        ToPort: 6784
+        CidrIp: 10.0.0.0/16
+        Description: Weave Net
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
+        Description: HTTPS
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+        Description: HTTP
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
@@ -328,6 +348,11 @@ Resources:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeSize: 15
+        UserData:
+          Fn::Base64:
+            !Sub |
+              #!/bin/bash -xe
+              hostnamectl set-hostname --static k8s-master; reboot;
         Tags:
           - Key: Name
             Value: !Sub ${EnvironmentName}-master
@@ -345,6 +370,11 @@ Resources:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeSize: 15
+        UserData:
+          Fn::Base64:
+            !Sub |
+              #!/bin/bash -xe
+              hostnamectl set-hostname --static k8s-node01; reboot;
         Tags:
           - Key: Name
             Value: !Sub ${EnvironmentName}-worker1
@@ -362,6 +392,11 @@ Resources:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeSize: 15
+        UserData:
+          Fn::Base64:
+            !Sub |
+              #!/bin/bash -xe
+              hostnamectl set-hostname --static k8s-node02; reboot;
         Tags:
           - Key: Name
             Value: !Sub ${EnvironmentName}-worker2
