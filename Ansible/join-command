@@ -1,0 +1,1 @@
+kubeadm join 172.31.14.153:6443 --token pxio3z.jwco3blwobga8qnb     --discovery-token-ca-cert-hash sha256:4651473f24b04723c5787edd92af32be53e9b61d44761dad5c45c225c1bae72b 
