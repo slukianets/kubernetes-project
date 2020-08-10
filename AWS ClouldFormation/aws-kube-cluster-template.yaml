@@ -261,6 +261,11 @@ Resources:
         - Key: Name
           Value: !Sub ${EnvironmentName} DB Routes
 
+DBSubnet1RouteTableAssociation:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: !Ref DBRouteTable
+    SubnetId: !Ref DBSubnet1
 
   DBSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
