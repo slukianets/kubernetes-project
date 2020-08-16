@@ -11,6 +11,7 @@ resource "aws_instance" "kube-cluster-master" {
   user_data = templatefile("user_data.sh.tpl", {name = "k8s-master"})
   tags = {
       Name = "Kubernetes-Master${count.index + 1}"
+      Kube-Role = "Master"
     }
   root_block_device {
       volume_size = 15
@@ -26,6 +27,7 @@ resource "aws_instance" "kube-cluster-node" {
   user_data = templatefile("user_data.sh.tpl", {name = "k8s-node0${count.index + 1}"})
   tags = {
       Name = "Kubernetes-Node0${count.index + 1}"
+      Kube-Role = "Node"
     }
   root_block_device {
       volume_size = 15
