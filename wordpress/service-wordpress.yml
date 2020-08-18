@@ -17,3 +17,25 @@ spec:
     app: wordpress
     server: web
   type: LoadBalancer
+
+
+---
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+  name: wordpress-service
+  labels:
+    app: wordpress
+    server: web
+
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+  selector:
+    app: wordpress
+    server: web
+  type: ClusterIP

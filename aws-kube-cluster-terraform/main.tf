@@ -1,5 +1,6 @@
 provider "aws" {}
 
+# Create VPC
 resource "aws_vpc" "kube-vpc" {
   cidr_block       = var.vpc_network
   instance_tenancy = "default"
@@ -11,6 +12,7 @@ resource "aws_vpc" "kube-vpc" {
   }
 }
 
+#Create Internet gateway with EIP
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.kube-vpc.id
 
@@ -19,6 +21,7 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+#Create Subnets
 resource "aws_subnet" "PublicSubnet1" {
   vpc_id     = aws_vpc.kube-vpc.id
   availability_zone_id = data.aws_availability_zones.current.zone_ids[0]
@@ -81,6 +84,7 @@ resource "aws_subnet" "DBSubnet2" {
   }
 }
 
+#Create EIP for NAT gateways
 resource "aws_eip" "eip_nat_gw_1" {
   depends_on = [aws_internet_gateway.gw]
 }
@@ -89,7 +93,7 @@ resource "aws_eip" "eip_nat_gw_2" {
   depends_on = [aws_internet_gateway.gw]
 }
 
-
+#Create NAT gateways
 resource "aws_nat_gateway" "nat_gw_1" {
   allocation_id = aws_eip.eip_nat_gw_1.id
   subnet_id     = aws_subnet.PublicSubnet2.id
@@ -181,7 +185,7 @@ resource "aws_route_table_association" "Association_PrivateSubnet2" {
 
 }
 
-#DB subnet
+#DB Route Table
 resource "aws_route_table" "DBRouteTable" {
   vpc_id =aws_vpc.kube-vpc.id
   tags = {
@@ -199,7 +203,7 @@ resource "aws_route_table_association" "Association_DBSubnet2" {
   route_table_id = aws_route_table.DBRouteTable.id
 }
 
-
+#Create Security Groups with Kubernetes, Weave, HTTPS, HTTP and SSH ports  
 resource "aws_security_group" "kubernetes_sg" {
   name = "Kubernetes security group"
 
@@ -304,6 +308,7 @@ resource "aws_security_group" "ssh_for_my_ip_sg" {
   }
 }
 
+#Create Master for Kubernetes
 resource "aws_instance" "kube-cluster-master" {
   count = 1
   ami           = data.aws_ami.ubuntu_latest.image_id
@@ -322,12 +327,13 @@ resource "aws_instance" "kube-cluster-master" {
     }
 }
 
+#Create Nodes for Kuberneetes
 resource "aws_instance" "kube-cluster-node" {
   count = 2
   ami           = data.aws_ami.ubuntu_latest.image_id
   instance_type = var.ec2_type
   key_name      = var.ssh_key
-  subnet_id  = "aws_subnet.PublicSubnet${count.index + 1}.id"
+  subnet_id  = aws_subnet.PublicSubnet1.id
   vpc_security_group_ids = [aws_security_group.kubernetes_sg.id, aws_security_group.weave_net_sg.id, aws_security_group.http_https_sg.id, aws_security_group.ssh_for_my_ip_sg.id]
   user_data = templatefile("user_data.sh.tpl", {name = "k8s-node0${count.index + 1}"})
   depends_on = [aws_security_group.kubernetes_sg, aws_security_group.weave_net_sg, aws_security_group.http_https_sg, aws_security_group.ssh_for_my_ip_sg]
