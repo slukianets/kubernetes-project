@@ -112,3 +112,7 @@ output "master_ip" {
 output "node_ip" {
   value = aws_instance.kube-cluster-node[*].public_ip
 }
+
+output "dns_alb" {
+  value = aws_lb.kube_alb.dns_name
+}
