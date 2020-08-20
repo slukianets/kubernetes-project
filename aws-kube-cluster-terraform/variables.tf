@@ -6,28 +6,25 @@ variable "vpc_network" {
   default = "172.16.0.0/16"
 }
 
-variable "public_subnet_1" {
-  default = "172.16.10.0/24"
+variable "public_subnets" {
+  default = [
+    "172.16.10.0/24",
+    "172.16.11.0/24"
+  ]
 }
 
-variable "public_subnet_2" {
-  default = "172.16.11.0/24"
+variable "private_subnets" {
+  default = [
+    "172.16.20.0/24",
+    "172.16.21.0/24"
+  ] 
 }
 
-variable "private_subnet_1" {
-  default = "172.16.20.0/24"
-}
-
-variable "private_subnet_2" {
-  default = "172.16.21.0/24"
-}
-
-variable "db_subnet_1" {
-  default = "172.16.30.0/24"
-}
-
-variable "db_subnet_2" {
-  default = "172.16.31.0/24"
+variable "db_subnets" {
+  default = [
+    "172.16.30.0/24",
+    "172.16.31.0/24"
+  ] 
 }
 
 variable "ec2_ingress_port_kube" {
