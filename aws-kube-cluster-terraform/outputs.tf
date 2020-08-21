@@ -1,3 +1,4 @@
+
 output "vpc" {
   value = map(
     aws_vpc.kube_vpc.tags["Name"], aws_vpc.kube_vpc.id
@@ -11,69 +12,69 @@ output igw {
 }
 
 output "public_subnets" {
-  value = map(
-    aws_subnet.public_subnets[*].tags["Name"], aws_subnet.public_subnets[*].id
-  )
+  value = {
+    for sn in aws_subnet.public_subnets[*] : sn.tags["Name"] => sn.id
+  }
 }
 
 output "private_subnets" {
-  value = map(
-    aws_subnet.private_subnets[*].tags["Name"], aws_subnet.private_subnets[*].id
-  )
+  value = {
+    for sn in aws_subnet.private_subnets[*] : sn.tags["Name"] => sn.id
+  }
 }
 
 output "db_subnets" {
-  value = map(
-    aws_subnet.db_subnets[*].tags["Name"], aws_subnet.db_subnets[*].id
-  )
+  value = {
+    for sn in aws_subnet.db_subnets[*] : sn.tags["Name"] => sn.id
+  }
 }
 
 output "nat_gws" {
-  value = map (
-    aws_nat_gateway.nat_gws[*].tags["Name"], list (aws_nat_gateway.nat_gws[*].id, aws_nat_gateway.nat_gws[*].public_ip)
-  )
+  value = {
+    for nat in aws_nat_gateway.nat_gws[*]: nat.tags["Name"]  => [nat.id, nat.public_ip]
+  }
 }
 
 output "public_route_table" {
-  value = map (
-    aws_route_table.public_route_table.tags["Name"], aws_route_table.public_route_table.id
-  )
+  value = {  
+    for rt in aws_route_table.public_route_table[*]: rt.tags["Name"] => rt.id
+  }
 }
 
 output "private_route_tables" {
-  value = map (
-    aws_route_table.private_route_tables[*].tags["Name"], aws_route_table.private_route_tables[*].id
-  )
+  value = {  
+    for rt in aws_route_table.private_route_tables[*]: rt.tags["Name"] => rt.id
+  }
 }
 
 output "db_route_table" {
-  value = map (
-    aws_route_table.db_route_table.tags["Name"], aws_route_table.db_route_table.id
-  )
+  value = {  
+    for rt in aws_route_table.db_route_table[*]: rt.tags["Name"] => rt.id
+  }
 }
 
 output "kubernetes_sg" {
-  value = map (
-    aws_security_group.kubernetes_sg.tags["Name"], aws_security_group.kubernetes_sg.id
-  )
+  value = {
+    for sg in aws_security_group.kubernetes_sg[*]: sg.tags["Name"] => sg.id
+  }
 }
 
 output "weave_net_sg" {
-  value = map (
-    aws_security_group.weave_net_sg.tags["Name"], aws_security_group.weave_net_sg.id
-  )
+  value = {
+    for sg in aws_security_group.weave_net_sg[*]: sg.tags["Name"] => sg.id
+  }
 }
 
 output "http_https_sg" {
-  value = map (
-    aws_security_group.http_https_sg.tags["Name"], aws_security_group.http_https_sg.id
-  )
+  value = {
+    for sg in aws_security_group.http_https_sg[*]: sg.tags["Name"] => sg.id
+  }
 }
 
 output "ssh_for_my_ip_sg" {
-  value = map (
-    aws_security_group.ssh_for_my_ip_sg.tags["Name"], aws_security_group.ssh_for_my_ip_sg.id
-  )
+  value = {
+    for sg in aws_security_group.ssh_for_my_ip_sg[*]: sg.tags["Name"] => sg.id
+  }
 }
 
 output "master_ip" {
@@ -84,6 +85,8 @@ output "node_ip" {
   value = aws_instance.kube_cluster_node[*].public_ip
 }
 
-#output "dns_alb" {
-#  value = aws_lb.kube_alb.dns_name
-#}
+output "dns_alb" {
+  value = aws_lb.kube_alb.dns_name
+}
+
+
