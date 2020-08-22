@@ -68,7 +68,7 @@ resource "aws_eip" "eip_nat_gws" {
 resource "aws_nat_gateway" "nat_gws" {
   count = length(aws_subnet.private_subnets[*].id)
   allocation_id = aws_eip.eip_nat_gws[count.index].id
-  subnet_id     = aws_subnet.private_subnets[count.index].id
+  subnet_id     = aws_subnet.public_subnets[count.index].id
   depends_on = [aws_internet_gateway.igw]
   tags = {
     Name = "${var.environment}-NAT-GW-${count.index + 1}"
