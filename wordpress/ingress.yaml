@@ -9,10 +9,9 @@ metadata:
     nginx.org/server-snippets: "server_name ~^.*$;"
 spec:
   rules:
-   - host: '*.eu-central-1.compute.amazonaws.com'      
-     http:
-        paths:
-          - path: /
-            backend:
-              serviceName: wordpress-service
-              servicePort: 80
+   - http:
+       paths:
+         - path: /
+           backend:
+             serviceName: wordpress-service
+             servicePort: 80
